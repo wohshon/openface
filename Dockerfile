@@ -27,5 +27,5 @@ RUN cd ~/openface && \
     pip2 install -r demos/web/requirements.txt && \
     pip2 install -r training/requirements.txt
 
-EXPOSE 8000 9000
+EXPOSE 8000 80
 CMD /bin/bash -l -c '/root/openface/demos/web/start-servers.sh'

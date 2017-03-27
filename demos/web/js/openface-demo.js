@@ -151,6 +151,7 @@ function sendState() {
 }
 
 function createSocket(address, name) {
+    address="ws://openface-ws.cloudapps.demo.com";
     socket = new WebSocket(address);
     socketName = name;
     socket.binaryType = "arraybuffer";

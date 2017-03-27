@@ -329,7 +329,8 @@ function changeServerCallback() {
     case "Local":
         socket.close();
         redrawPeople();
-        createSocket("ws:" + window.location.hostname + ":9000", "Local");
+//        createSocket("ws:" + window.location.hostname + ":9000", "Local");
+        createSocket("ws://localhost:9000", "Local");
         break;
     case "CMU":
         socket.close();

@@ -23,9 +23,13 @@ import txaio
 txaio.use_twisted()
 
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
-    WebSocketServerFactory
+    WebSocketServerFactory, listenWS
+from autobahn.twisted.resource import WebSocketResource
+
 from twisted.python import log
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
+from twisted.web.server import Site
+from twisted.web.static import File
 
 import argparse
 import cv2
@@ -356,9 +360,24 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
-    factory = WebSocketServerFactory("ws://localhost:{}".format(args.port),
+    #wss
+    contextFactory = ssl.DefaultOpenSSLContextFactory('/root/openface/demos/web/keys/server.key',
+                                                      '/root/openface/demos/web/keys/server.crt')
+
+    factory = WebSocketServerFactory(u"wss://localhost:{}".format(args.port),
                                      debug=False)
     factory.protocol = OpenFaceServerProtocol
+    #wss
+   # listenWS(factory, contextFactory)
+    #webdir.contentTypes['.crt'] = 'application/x-x509-ca-cert'
+    #web = Site(webdir)    
+    #resource = WebSocketResource(factory)
 
-    reactor.listenTCP(args.port, factory)
+    #root = File(".")
+    # note that Twisted uses bytes for URLs, which mostly affects Python3
+    #root.putChild(resource)
+    #site = Site(root)
+
+    reactor.listenSSL(args.port,factory, contextFactory)
+    # reactor.listenTCP(args.port, factory)
     reactor.run()

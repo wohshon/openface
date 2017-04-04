@@ -5,6 +5,8 @@ MAINTAINER Brandon Amos <brandon.amos.cs@gmail.com>
 RUN ln -s /root/torch/install/bin/* /usr/local/bin
 
 RUN apt-get update && apt-get install -y \
+    python-openssl \
+    libssl-dev \
     curl \
     git \
     graphicsmagick \
@@ -22,10 +24,11 @@ RUN apt-get update && apt-get install -y \
 ADD . /root/openface
 RUN cd ~/openface && \
     ./models/get-models.sh && \
+#    pip2 install pyopenssl && \
     pip2 install -r requirements.txt && \
     python2 setup.py install && \
     pip2 install -r demos/web/requirements.txt && \
     pip2 install -r training/requirements.txt
 
-EXPOSE 8000 80
+EXPOSE 8000 9000
 CMD /bin/bash -l -c '/root/openface/demos/web/start-servers.sh'

@@ -151,7 +151,6 @@ function sendState() {
 }
 
 function createSocket(address, name) {
-    address="ws://openface-ws.cloudapps.demo.com";
     socket = new WebSocket(address);
     socketName = name;
     socket.binaryType = "arraybuffer";
@@ -330,8 +329,8 @@ function changeServerCallback() {
     case "Local":
         socket.close();
         redrawPeople();
-//        createSocket("ws:" + window.location.hostname + ":9000", "Local");
-        createSocket("ws://openface-ws.cloudapps.demo.com", "Local");
+        createSocket("wss:" + window.location.hostname + ":9000", "Local");
+        //createSocket("ws:" + window.location.hostname + ":9000", "Local");
         break;
     case "CMU":
         socket.close();

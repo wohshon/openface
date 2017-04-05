@@ -68,7 +68,7 @@ parser.add_argument('--imgDim', type=int,
 parser.add_argument('--cuda', action='store_true')
 parser.add_argument('--unknown', type=bool, default=False,
                     help='Try to predict unknown people')
-parser.add_argument('--port', type=int, default=9000,
+parser.add_argument('--port', type=int, default=443,
                     help='WebSocket Port')
 
 args = parser.parse_args()

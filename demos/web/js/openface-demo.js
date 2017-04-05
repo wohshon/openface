@@ -329,8 +329,8 @@ function changeServerCallback() {
     case "Local":
         socket.close();
         redrawPeople();
-        createSocket("wss:" + window.location.hostname + ":9000", "Local");
         //createSocket("ws:" + window.location.hostname + ":9000", "Local");
+        createSocket("wss://openface-ws.cloudapps.demo.com", "Local");
         break;
     case "CMU":
         socket.close();

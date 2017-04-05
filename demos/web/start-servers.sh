@@ -4,8 +4,8 @@ set -e -u
 
 function die { echo $1; exit 42; }
 
-HTTP_PORT=8000
-WEBSOCKET_PORT=9000
+HTTP_PORT=8080
+WEBSOCKET_PORT=443
 
 case $# in
   0) ;;

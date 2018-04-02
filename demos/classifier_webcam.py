@@ -33,6 +33,7 @@ import argparse
 import cv2
 import os
 import pickle
+import sys
 
 import numpy as np
 np.set_printoptions(precision=2)
@@ -97,41 +98,46 @@ def getRep(bgrImg):
         print("Neural network forward pass took {} seconds.".format(
             time.time() - start))
 
-    # print reps
-    return reps
+    # print (reps)
+    return (reps,bb)
 
 
 def infer(img, args):
     with open(args.classifierModel, 'r') as f:
-        (le, clf) = pickle.load(f)  # le - label and clf - classifer
+        if sys.version_info[0] < 3:
+                (le, clf) = pickle.load(f)  # le - label and clf - classifer
+        else:
+                (le, clf) = pickle.load(f, encoding='latin1')  # le - label and clf - classifer
 
-    reps = getRep(img)
+    repsAndBBs = getRep(img)
+    reps = repsAndBBs[0]
+    bbs = repsAndBBs[1]
     persons = []
     confidences = []
     for rep in reps:
         try:
             rep = rep.reshape(1, -1)
         except:
-            print "No Face detected"
+            print ("No Face detected")
             return (None, None)
         start = time.time()
         predictions = clf.predict_proba(rep).ravel()
-        # print predictions
+        # print (predictions)
         maxI = np.argmax(predictions)
         # max2 = np.argsort(predictions)[-3:][::-1][1]
         persons.append(le.inverse_transform(maxI))
-        # print str(le.inverse_transform(max2)) + ": "+str( predictions [max2])
+        # print (str(le.inverse_transform(max2)) + ": "+str( predictions [max2]))
         # ^ prints the second prediction
         confidences.append(predictions[maxI])
         if args.verbose:
             print("Prediction took {} seconds.".format(time.time() - start))
             pass
-        # print("Predict {} with {:.2f} confidence.".format(person, confidence))
+        # print("Predict {} with {:.2f} confidence.".format(person.decode('utf-8'), confidence))
         if isinstance(clf, GMM):
             dist = np.linalg.norm(rep - clf.means_[maxI])
             print("  + Distance from the mean: {}".format(dist))
             pass
-    return (persons, confidences)
+    return (persons, confidences ,bbs)
 
 
 if __name__ == '__main__':
@@ -184,8 +190,8 @@ if __name__ == '__main__':
     confidenceList = []
     while True:
         ret, frame = video_capture.read()
-        persons, confidences = infer(frame, args)
-        print "P: " + str(persons) + " C: " + str(confidences)
+        persons, confidences, bbs = infer(frame, args)
+        print ("P: " + str(persons) + " C: " + str(confidences))
         try:
             # append with two floating point precision
             confidenceList.append('%.2f' % confidences[0])
@@ -198,9 +204,13 @@ if __name__ == '__main__':
             if c <= args.threshold:  # 0.5 is kept as threshold for known face.
                 persons[i] = "_unknown"
 
-                # Print the person name and conf value on the frame
-        cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-                    (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        # Print the person name and conf value on the frame next to the person
+        # Also print the bounding box
+        for idx,person in enumerate(persons):
+            cv2.rectangle(frame, (bbs[idx].left(), bbs[idx].top()), (bbs[idx].right(), bbs[idx].bottom()), (0, 255, 0), 2)
+            cv2.putText(frame, "{} @{:.2f}".format(person, confidences[idx]),
+                        (bbs[idx].left(), bbs[idx].bottom()+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
         cv2.imshow('', frame)
         # quit the program on the press of key 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
